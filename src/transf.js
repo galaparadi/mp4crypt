@@ -1,22 +1,30 @@
 const { Transform, pipeline, PassThrough, Duplex } = require('stream');
 const { createReadStream, createWriteStream, openSync, closeSync, readSync, statSync } = require('fs');
 const { createCipheriv, createDecipheriv, randomBytes, createHash } = require('crypto')
-const CHUNK_SIZE = 65536
 
+//TODO: make it doesn't depent on CHUNK_SIZE
+/**
+ * post dechiper
+ * @param {Number} start start byte of dechiper file
+ * @param {Number} end end byte of dechiper file
+ * @returns {Stream}
+ */
 function _postDechiper(start, end) {
+    const dataSize = (end - start) + 1;
     let chunkSize = 0;
     return new Transform({
         defaultEncoding: 'utf-8',
         transform(chunk, encoding, cb) {
-            chunkSize += chunk.length
             let tempChunk = chunk;
 
-            //check if chunk are the first chunk
-            if (chunkSize <= CHUNK_SIZE)
+            //check if chunk are the first chunk FIXME: change how detect if the chunk is the first chunk
+            if (chunkSize == 0)
                 tempChunk = tempChunk.slice(start % 16);
 
-            //check if chunk are the end of stream
-            if ((chunk.length < CHUNK_SIZE) && (end % 16 != 0))
+            chunkSize += chunk.length;
+
+            //check if chunk are the end of stream FIXME: change how to detect if the chunk is the last chunk
+            if (chunkSize >= dataSize)
                 tempChunk = tempChunk.slice(0, -(15 - (end % 16)));
 
             this.push(tempChunk);
@@ -60,6 +68,11 @@ exports.getIvPosition = function (start) {
     ];
     return [4, 19];
 }
+
+/**
+ * file size bytes position
+ */
+exports.getSizePosition = () => [0, 3];
 
 /**
  * encrypt stream
@@ -112,7 +125,6 @@ exports.encryptStream = function ({ secret, size }) {
  * @param {integer} config.iv - iv for encrypted video file.
  * @returns {Duplex}
  */
-// Before decrypt, make sure the encrypted block is valid
 exports.decryptStream = function ({ secret, start, end, iv }) {
     const pumpify = require('pumpify');
 

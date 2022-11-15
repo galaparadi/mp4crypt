@@ -1,4 +1,6 @@
 .npmrc
 .env
 .vscode
+# somekind of test
+sb.js
 node_modules

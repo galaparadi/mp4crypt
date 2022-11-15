@@ -2,7 +2,6 @@ const { Transform, pipeline, PassThrough, Duplex } = require('stream');
 const { createReadStream, createWriteStream, openSync, closeSync, readSync, statSync } = require('fs');
 const { createCipheriv, createDecipheriv, randomBytes, createHash } = require('crypto')
 
-//TODO: make it doesn't depent on CHUNK_SIZE
 /**
  * post dechiper
  * @param {Number} start start byte of dechiper file
@@ -17,13 +16,13 @@ function _postDechiper(start, end) {
         transform(chunk, encoding, cb) {
             let tempChunk = chunk;
 
-            //check if chunk are the first chunk FIXME: change how detect if the chunk is the first chunk
+            //check if chunk are the first chunk
             if (chunkSize == 0)
                 tempChunk = tempChunk.slice(start % 16);
 
             chunkSize += chunk.length;
 
-            //check if chunk are the end of stream FIXME: change how to detect if the chunk is the last chunk
+            //check if chunk are the end of stream
             if (chunkSize >= dataSize)
                 tempChunk = tempChunk.slice(0, -(15 - (end % 16)));
 

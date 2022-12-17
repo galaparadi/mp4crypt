@@ -6,7 +6,7 @@ const { createCipheriv, createDecipheriv, randomBytes, createHash } = require('c
  * post dechiper
  * @param {Number} start start byte of dechiper file
  * @param {Number} end end byte of dechiper file
- * @returns {Stream}
+ * @returns {Transform}
  */
 function _postDechiper(start, end) {
     const dataSize = (end - start) + 1;

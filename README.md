@@ -25,7 +25,6 @@ npm link
 
 after instalation, go to your working directory, and type the following
 ```bat
-cd <your work directory>
 npm link mp4crypt
 ```
 
